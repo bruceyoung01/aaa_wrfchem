@@ -1,0 +1,372 @@
+commit 895b5ee6b709983df1595c0ce0bff5ff4b894923
+Author: Michael Duda <duda@ucar.edu>
+Date:   Fri Apr 14 18:44:01 2017 -0600
+
+    Set the final release date to 17 April 2017 in the README file (#33)
+    
+    This commit sets the release date in the top-level README file to 17 April 2017.
+
+commit 500527b3f23d1b9b66346b08e18da855ebc34c89
+Author: Michael Duda <duda@ucar.edu>
+Date:   Fri Apr 14 18:43:28 2017 -0600
+
+    Add ungrib capability to interpolate to new pressure levels (#14)
+    
+    This merge adds changes that allow for the interpolation to a set of
+    additional, runtime-defined pressure levels with the ungrib program.
+    
+    Now, the &ungrib namelist record contains three new options:
+    
+    * add_lvls: logical, whether to interpolate to additional levels
+    * interp_type: integer, 0=linear in pressure 1=linear in log pressure
+    * new_plvl: additional pressure levels (in Pa) to interpolate to
+    
+    These modifications were provided by Brian Reen (US Army Research Lab) and
+    were based on earlier code provided to Penn State by Cindy Bruyere (NCAR).
+    
+    Brian notes that:
+    "This capability is beneficial when quality controlling observations via
+    Obsgrid (e.g., for observation nudging or verification). Obsgrid interpolates
+    multi-level observations to the vertical levels of the coarse grid model used
+    to drive WRF (e.g., GFS) and then compares the interpolated observed profile to
+    the coarse grid model for quality control purposes. Thus, increased vertical
+    resolution in the coarse grid model data results in increased vertical resolution
+    in the interpolated observed profile used for obs nudging or verification; this
+    allows the observed vertical structures to be better represented in
+    the interpolated profile used for verification of obs nudging. The additional
+    vertical resolution in the coarse grid model data also improves processing of
+    single-level above-surface observations (e.g., aircraft obs) by providing model
+    data closer to the level of the aircraft ob."
+
+commit 7b24e9602417c543ef4628d089189f1e0edd2b62
+Author: Michael Duda <duda@ucar.edu>
+Date:   Fri Apr 14 16:01:27 2017 -0600
+
+    Fix issue with complex packing in newer NCEP NAM files (#32)
+    
+    The packaging of NCEP NAM GRIB2 files was changed the week of 20 March 2017, and
+    the WPS system had troubles reading in the height field correctly. This merge includes
+    a bug fix from NCEP for their g2 library to properly decode GRIB2 files using complex packing.
+    Prior to 20 March 2017 complex packing was not used by model providers. The NAM was
+    the first NCEP model to use this packing.
+    
+    Note: This same fix was made available on the WPS v3.8.1 "known problems" page.
+
+commit 504a8f5897b4647af76906bc87a8a70b3bf2003f
+Author: Michael Duda <duda@ucar.edu>
+Date:   Fri Apr 14 14:05:12 2017 -0600
+
+    Add BNU soil datasets to GEOGRID.TBL (#30)
+    
+    The 30-arc-second BNU soil datasets may be selected by prepending
+    geog_data_res with 'bnu_soil_30s+' in the namelist.wps file.
+
+commit 4f8ba28d4e914d94718f0f1bae0326ee896e1880
+Author: Michael Duda <duda@ucar.edu>
+Date:   Fri Apr 14 11:08:51 2017 -0600
+
+    Prevent incompatible land use datasets from being combined in geogrid (#15)
+    
+    In order to prevent two GEOGRID.TBL entries with different priorities
+    from introducing incompatible (i.e., different mminlu value) land
+    use datasets to a model domain, add checks in GEOGRID.TBL processing
+    code to compare mminlu values used across all data sources being
+    processed.
+    
+    Thanks to Brian Reen (US Army Research Lab) for providing these changes.
+
+commit 379640000d7ef1736a976f825ac00bab8c54dc84
+Author: Michael Duda <duda@ucar.edu>
+Date:   Fri Apr 14 11:08:13 2017 -0600
+
+    Enable user to explicitly not use optional GEOGRID.TBL entries (#16)
+    
+    Previously, for a GEOGRID.TBL entry that was marked as optional and
+    that did exist on the filesystem, if that entry did not have a default
+    interpolation option and no existing interpolation options were selected
+    by the user in the namelist.wps, geogrid would stop.
+    
+    Now, it is possible to not select among any of the interpolation options
+    for an optional GEOGRID.TBL entry without a default interpolation option,
+    and to have the geogrid program continue.
+    
+    Thanks to Brian Reen (US Army Research Lab) for providing these changes.
+
+commit 5c18c787e9982a6aa57b87a10020258b626cb6b4
+Author: Michael Duda <duda@ucar.edu>
+Date:   Fri Apr 14 11:06:57 2017 -0600
+
+    Set default soil category resolution to 30s (#31)
+    
+    The previous default resolution was 2m. To be more consistent with the
+    LANDUSEF default resolution, and also to offer a higher-resolution default
+    for those creating high-resolution domains over the CONUS, changing to
+    a default resolution for soil category data of 30s seems reasonable.
+
+commit 9893fe667001c25ad27b6c4594c4054cf613695c
+Author: Jim Bresch <bresch@ucar.edu>
+Date:   Fri Apr 14 11:05:43 2017 -0600
+
+    A simple change to the clean script to preserve the modification time (#24)
+    
+    This commit adds the '-p' option when copying configure.wps to configure.wps.backup to preserve the file's original modification time.
+
+commit 7f45a306b8d542ed58b2ee52aa53b0eed77f2c73
+Author: Michael Duda <duda@ucar.edu>
+Date:   Fri Apr 14 11:04:29 2017 -0600
+
+    Add missing SAVE attribute to derived-type module variables in process_domain_module (#23)
+    
+    Several derived-type module variables in the process_domain_module module
+    are of types with default initialization of their components. According to
+    the Fortran 2003 standard:
+    
+    C1107 (R1104) If an object of a type for which component-initialization is specified (R444) appears
+             in the specification-part of a module and does not have the ALLOCATABLE or POINTER
+             attribute, the object shall have the SAVE attribute.
+    
+    This commit simply adds the require SAVE attribute.
+    
+    Thanks to Brian Reen (US Army Research Lab) for pointing out this issue.
+
+commit 322ad00219d7d0f60873248b542ad11d2c6f76d4
+Author: Michael Duda <duda@ucar.edu>
+Date:   Wed Apr 12 20:47:02 2017 +0000
+
+    Add GEOGRID.TBL.ARW.noahmp (#29)
+    
+    The GEOGRID.TBL.ARW.noahmp file is intended to be used when creating domains
+    for simulations in which a user will activate the crop or groundwater modules
+    in the Noah-MP scheme.
+
+commit f411afb9c40549683bb37353aeb6e82c45eece02
+Author: Michael Duda <duda@ucar.edu>
+Date:   Tue Apr 11 21:34:45 2017 +0000
+
+    Only convert TT from potential temperature to temperature for MPAS input (#28)
+    
+    The routine derive_mpas_fields(...) is used to convert the TT field from
+    potential temperature to temperature using PRESSURE. Inside this routine,
+    however, there was previously no check to verify that the TT and PRESSURE
+    fields were from MPAS and not from another source where TT was already
+    temperature.
+    
+    Now, we set the fg_source in the header of stored fields to 'MPAS' when
+    the data come from an MPAS dataset, and we only convert TT when the fg_source
+    is equal to 'MPAS'.
+    
+    Also, the derive_mpas_fields(...) routine was previously enclosed inside
+    a test for (.not. do_const_processing); this is superfluous, since the code
+    above this call already returns if do_const_processing is true.
+
+commit 5fce30bbeede1413efd3520a73bd188025eff2f1
+Author: Michael Duda <duda@ucar.edu>
+Date:   Tue Apr 11 17:46:21 2017 +0000
+
+    Add 'modis_30s_lake' for MODIS 20-class with lakes dataset to GEOGRID.TBL (#25)
+    
+    'modis_30s_lake' refers to the dataset created from the 30-arc-second MODIS
+    20-class dataset with algorithmically added inland water bodies, and which also
+    has corrections to remove spurious water points over Antarctica.
+    
+    This commit also makes the 'modis_30s_lake' dataset the default.
+    
+    For aesthetic reasons, most lines in the LANDUSEF entry have been modified
+    to align the ':' character; these other changes (beyond the 'modis_30s_lake'
+    lines) should be purely whitespace changes.
+
+commit 23e82f25c94d6c787150ada6e36a2c3c87e1870b
+Author: Michael Duda <duda@ucar.edu>
+Date:   Fri Mar 10 15:52:22 2017 -0700
+
+    Update README for March 2017 second friendly user release (#13)
+    
+    This merge updates the README file for the second friendly user release
+    of the WPS v3.9 code in March 2017.
+
+commit b245ec840622398048e4b153660a03d87dc3eb2d
+Author: Michael Duda <duda@ucar.edu>
+Date:   Fri Mar 10 12:26:30 2017 -0700
+
+    Correct 'flag_in_output' values in METGRID.TBL.ARW for QNC and QNR (#18)
+    
+    The entries for both QNC and QNR in the METGRID.TBL.ARW previously specified
+    a 'flag_in_output' value of FLAG_QNI. This commit corrects these flag values
+    to FLAG_QNC and FLAG_QNR, respectively.
+
+commit 1d40660e42cf0d6ee4a177503c3731a75f865e0f
+Author: Michael Duda <duda@ucar.edu>
+Date:   Fri Mar 10 12:22:44 2017 -0700
+
+    Enable metgrid to process native MPAS output files (#11)
+    
+    This merge introduces changes to the metgrid program that enable the WPS to
+    read and interpolate native MPAS output files, thereby allowing MPAS to provide
+    initial and boundary conditions for a WRF simulation. From a user perspective,
+    two namelist variables in the &metgrid namelist record must be set:
+    
+    1. constants_name must be set to the name of the MPAS "static" file, prefixed
+       with "mpas:", e.g., constants_name = "mpas:x1.40962.static.nc".
+    
+    2. fg_name must provide the prefix of MPAS netCDF output files, prefixed with
+       "mpas:", e.g., fg_name = "mpas:FOO"; the corresponding MPAS netCDF files
+       should be named "FOO.YYYY-MM-DD_hh.nc", where YYYY, MM, DD, and hh are
+       the valid time year, month, day, and hour of the data contained in the file.
+    
+    Note that MPAS files should contain only one time per file. When writing output
+    from MPAS for use as initial and boundary conditions in WRF, the following MPAS
+    stream definition can serve as a template:
+    
+    <stream name="wrf_ic_bc"
+            type="output"
+            filename_template="MPAS_15km.$Y-$M-$D_$h.nc"
+            output_interval="3:00:00" >
+    
+            <var name="xtime"/>
+            <var_array name="scalars"/>
+            <var name="pressure"/>
+            <var name="zgrid"/>
+            <var name="theta"/>
+            <var name="uReconstructZonal"/>
+            <var name="uReconstructMeridional"/>
+            <var name="u10"/>
+            <var name="v10"/>
+            <var name="q2"/>
+            <var name="t2m"/>
+            <var name="skintemp"/>
+            <var name="surface_pressure"/>
+            <var name="mslp"/>
+            <var name="tslb"/>
+            <var name="smois"/>
+    </stream>
+
+commit 192956273142d0970df0f10d2250e6965e21562d
+Author: smileMchen <chenming@ucar.edu>
+Date:   Fri Mar 10 11:58:30 2017 -0700
+
+    Modification of METGRID.TBL.ARW (#17)
+    
+    This is a modification of The FLAG_QNI problem.
+    Correct FLAGS are set for QNC and QNR
+
+commit 4ceb7833749654aa96df94e95d166611841e7ffa
+Author: kkeene44 <kkeene@ucar.edu>
+Date:   Thu Mar 9 14:32:43 2017 -0700
+
+    Add section to compile script to print code/compiler/system information (#12)
+    
+    Added a few lines of code to the 'compile' script in order to print out
+    the version of the code. This is currently hard-wired as Version 3.9. We will
+    either need to come up with a more elegant method to have this automatically
+    update with each version, or simply remember to change it with each new release.
+    There will also be print-outs stating the compiler and system information.
+
+commit b104496fd4920a135a65b9da95233c2694918494
+Author: Michael Duda <duda@ucar.edu>
+Date:   Tue Mar 7 15:47:58 2017 -0700
+
+    Use size_t types in read_geogrid to properly handle tiles > 2 GB (#9)
+    
+    The read byte count as well as the index in a loop over array elements
+    in the read_geogrid( ) routine were previously declared as 'int' types,
+    which limits the maximum number of elements that can be read and processed
+    to 2^31 - 1; changing from 'int' to 'size_t' for these variables allows
+    the routine to now read tiles of static data larger than 2 GB.
+
+commit a8580cdc903e18e7e5d12f6a0b0f2b086b5d495e
+Author: Michael Duda <duda@ucar.edu>
+Date:   Mon Jan 23 16:09:43 2017 -0700
+
+    Update version number to 3.9 for January 2017 friendly user release (#7)
+    
+    This merge updates the version number in the WPS to 3.9 for the January 2017
+    friendly user release.
+    
+    The WPS version number has been updated in the following files:
+    
+    README
+    geogrid/src/process_tile_module.F
+    metgrid/src/input_module.F
+    metgrid/src/process_domain_module.F
+
+commit 8421401ef6d2a48cf6665ba25eb818028f53eada
+Author: Michael Duda <duda@ucar.edu>
+Date:   Mon Jan 23 16:08:14 2017 -0700
+
+    Add initial versions of .gitignore files (#6)
+    
+    This merge adds .gitignore files with patterns that match all files created by configuring and compiling the WPS. No attempt is made to ignore files created by running any of the WPS programs, e.g., the geo_em.d01* files created by geogrid.exe.
+
+commit 19b850e4c1132e7c9d6c853baed390a01dfe5988
+Author: Michael Duda <duda@ucar.edu>
+Date:   Mon Jan 23 15:01:48 2017 -0700
+
+    Fix the computation of df/dx for fields in geogrid (#8)
+    
+    Two lines in source_data_module.F were in the wrong place, leading to problems
+    with the dimensions of computed df/dx fields.
+    
+    Thanks to Branko Kosovic.
+
+commit 8c75d8dbdfbb4860bee0bf8953c455d569d883dd
+Author: smileMchen <chenming@ucar.edu>
+Date:   Mon Jan 23 14:17:13 2017 -0700
+
+     Add WPS capability to process rotated lat-lon grid data (#3)
+    
+    This PR adds the capability in the WPS to process RAP 'wrfout' data on a rotated lat-lon grid.
+    Utility programs ( rd_intermediate and g2print) are also updated to work with rotated lat-lon data.
+    A new Vtable, Vtable.raphrrr, is also added.
+
+commit 3cd30d0f56fa649059a5507c2c3f546b3d0e8c36
+Merge: 8011a5e 4e0b6f1
+Author: Dave Gill <gill@ucar.edu>
+Date:   Wed Dec 14 11:48:55 2016 -0700
+
+    naming of QNWFA and QNIFA monthly aerosols, consistent with new input data set #4
+    
+    Modify the names for QNIFA and QNWFA (max length is 9 chars), and add the monthly pressure array to the METGRID.TBL file for ARW.
+
+commit 4e0b6f114df3f3743d044c5800744bca3e031397
+Author: Dave Gill <gill@ucar.edu>
+Date:   Mon Dec 5 16:03:53 2016 -0700
+
+    Fat-fingered a vi command and wiped out a # character
+
+commit 7dda18ff69aa461afad57558fff5220e3255e1d8
+Author: Dave Gill <gill@ucar.edu>
+Date:   Mon Nov 28 15:27:49 2016 -0700
+
+    Rename monthly files for the Water- and Ice-friendly aerosols
+    for mp_physics=28 in WRF.  These are now consistent with an
+    existing data set.
+
+commit 8011a5ebb23f26064e4f41c58ba15dc06437680e
+Author: kkeene44 <kkeene@ucar.edu>
+Date:   Tue Oct 18 13:56:10 2016 -0600
+
+    Added correct links to ECMWF coefficient tables in calc_ecmwf_p utility
+    
+    TYPE: text only
+    
+    KEYWORDS: calc_ecmwf_p, WPS, ECMWF-sigma, utility
+    
+    SOURCE: Internal
+    
+    DESCRIPTION OF CHANGES: At the top of the calc_ecmwf_p.F file, in the comments, there is a link to a web page that contains tables of coefficients used in the pressure computation. The format of the web pages changed so that now each link is to the individual table that corresponds to the appropriate number of sigma levels in the data set. Therefore the link in this file needed to be modified, and additional links needed to be added.
+    
+    LIST OF MODIFIED FILES:
+    M util/src/calc_ecmwf_p.F
+    
+    TESTS CONDUCTED: No tests, as this was only a text change in the comments
+
+commit a26e2bf2591e0602c01288d56a576eb44e2f52f0
+Author: David Gill <gill@ucar.edu>
+Date:   Thu Aug 11 21:15:27 2016 +0000
+
+    Finish README with date and revision for 3.8.1
+    
+    
+    
+    git-svn-id: https://svn-wrf-wps.cgd.ucar.edu/trunk@951 86b71a92-4018-0410-97f8-d555beccfc3a
+
